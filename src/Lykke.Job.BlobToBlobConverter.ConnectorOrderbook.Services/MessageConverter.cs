@@ -38,7 +38,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
         {
             var result = new Dictionary<string, string>
             {
-                { _mainContainer, OutOrderbookEntry.GetColumns() },
+                { _mainContainer, OutOrderbookEntry.GetColumnsString() },
             };
             return result;
         }
@@ -61,7 +61,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                         Price = (decimal)ask.Price,
                         Volume = (decimal)ask.Volume,
                     };
-                    result[_mainContainer].Add(askEntry.ToString());
+                    result[_mainContainer].Add(askEntry.GetValuesString());
                 }
             if (book.Bids != null)
                 foreach (var bid in book.Bids)
@@ -75,7 +75,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                         Price = (decimal)bid.Price,
                         Volume = (decimal)bid.Volume,
                     };
-                    result[_mainContainer].Add(bidEntry.ToString());
+                    result[_mainContainer].Add(bidEntry.GetValuesString());
                 }
         }
     }

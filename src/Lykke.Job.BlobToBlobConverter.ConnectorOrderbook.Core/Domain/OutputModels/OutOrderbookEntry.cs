@@ -14,12 +14,12 @@
 
         public decimal Volume { get; set; }
 
-        public override string ToString()
+        public string GetValuesString()
         {
-            return $"{nameof(Source)},{Source},{nameof(Asset)},{Asset},{nameof(Timestamp)},{Timestamp},{nameof(IsAsk)},{IsAsk},{nameof(Price)},{Price},{nameof(Volume)},{Volume}";
+            return $"{Source},{Asset},{Timestamp},{IsAsk},{Price},{Volume}";
         }
 
-        public static string GetColumns()
+        public static string GetColumnsString()
         {
             return $"{nameof(Source)},{nameof(Asset)},{nameof(Timestamp)},{nameof(IsAsk)},{nameof(Price)},{nameof(Volume)}";
         }
