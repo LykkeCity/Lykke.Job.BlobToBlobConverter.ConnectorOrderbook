@@ -34,6 +34,15 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return result;
         }
 
+        public Dictionary<string, string> GetMappingStructure()
+        {
+            var result = new Dictionary<string, string>
+            {
+                { _mainContainer, OutOrderbookEntry.GetColumns() },
+            };
+            return result;
+        }
+
         private void AddConvertedMessage(byte[] message, Dictionary<string, List<string>> result)
         {
             var book = JsonDeserializer.Deserialize<InConnectorOrderbook>(message);

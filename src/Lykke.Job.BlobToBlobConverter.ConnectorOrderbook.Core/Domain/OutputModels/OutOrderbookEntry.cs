@@ -13,5 +13,15 @@
         public decimal Price { get; set; }
 
         public decimal Volume { get; set; }
+
+        public override string ToString()
+        {
+            return $"{nameof(Source)},{Source},{nameof(Asset)},{Asset},{nameof(Timestamp)},{Timestamp},{nameof(IsAsk)},{IsAsk},{nameof(Price)},{Price},{nameof(Volume)},{Volume}";
+        }
+
+        public static string GetColumns()
+        {
+            return $"{nameof(Source)},{nameof(Asset)},{nameof(Timestamp)},{nameof(IsAsk)},{nameof(Price)},{nameof(Volume)}";
+        }
     }
 }
