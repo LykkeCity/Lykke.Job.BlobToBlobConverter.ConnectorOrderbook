@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
@@ -8,30 +10,32 @@ using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.OutputModels;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 {
-    public class MessageConverter : IMessageConverter
+    public class MessageProcessor : IMessageProcessor
     {
         private const string _mainContainer = "connectorderbook";
+        private const int _maxBatchCount = 1000000;
 
         private readonly ILog _log;
 
-        public MessageConverter(ILog log)
+        public MessageProcessor(ILog log)
         {
             _log = log;
         }
 
-        public Dictionary<string, List<string>> Convert(IEnumerable<byte[]> messages)
+        public async Task ProcessAsync(IEnumerable<byte[]> messages, Func<string, ICollection<string>, Task> processTask)
         {
-            var result = new Dictionary<string, List<string>>
-            {
-                { _mainContainer, new List<string>() },
-            };
+            var list = new List<string>();
 
             foreach (var message in messages)
             {
-                AddConvertedMessage(message, result);
-            }
+                AddConvertedMessage(message, list);
 
-            return result;
+                if (list.Count >= _maxBatchCount)
+                {
+                    await processTask(_mainContainer, list);
+                    list.Clear();
+                }
+            }
         }
 
         public Dictionary<string, string> GetMappingStructure()
@@ -43,11 +47,11 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return result;
         }
 
-        private void AddConvertedMessage(byte[] message, Dictionary<string, List<string>> result)
+        private void AddConvertedMessage(byte[] message, List<string> list)
         {
             var book = JsonDeserializer.Deserialize<InConnectorOrderbook>(message);
             if (!book.IsValid())
-                _log.WriteWarning(nameof(MessageConverter), nameof(Convert), $"ConnectorOrderbook {book.ToJson()} is invalid!");
+                _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {book.ToJson()} is invalid!");
 
             if (book.Asks != null)
                 foreach (var ask in book.Asks)
@@ -61,7 +65,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                         Price = (decimal)ask.Price,
                         Volume = (decimal)ask.Volume,
                     };
-                    result[_mainContainer].Add(askEntry.GetValuesString());
+                    list.Add(askEntry.GetValuesString());
                 }
             if (book.Bids != null)
                 foreach (var bid in book.Bids)
@@ -75,7 +79,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                         Price = (decimal)bid.Price,
                         Volume = (decimal)bid.Volume,
                     };
-                    result[_mainContainer].Add(bidEntry.GetValuesString());
+                    list.Add(bidEntry.GetValuesString());
                 }
         }
     }
