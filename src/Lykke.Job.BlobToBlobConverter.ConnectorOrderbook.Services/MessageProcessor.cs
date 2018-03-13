@@ -13,7 +13,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
     public class MessageProcessor : IMessageProcessor
     {
         private const string _mainContainer = "connectorderbook";
-        private const int _maxBatchCount = 1000000;
+        private const int _maxBatchCount = 500000;
 
         private readonly ILog _log;
 
