@@ -18,12 +18,12 @@
 
         public string GetValuesString()
         {
-            return $"{Source},{Asset},{Timestamp},{IsAsk},{Price},{Volume}";
+            return $"{BookId},{Source},{Asset},{Timestamp},{IsAsk},{Price},{Volume}";
         }
 
         public static string GetColumnsString()
         {
-            return $"{nameof(Source)},{nameof(Asset)},{nameof(Timestamp)},{nameof(IsAsk)},{nameof(Price)},{nameof(Volume)}";
+            return $"{nameof(BookId)},{nameof(Source)},{nameof(Asset)},{nameof(Timestamp)},{nameof(IsAsk)},{nameof(Price)},{nameof(Volume)}";
         }
     }
 }
