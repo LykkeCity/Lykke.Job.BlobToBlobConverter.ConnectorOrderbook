@@ -61,6 +61,11 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .AutoActivate()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.BlobScanPeriod));
+
+            builder.RegisterType<ResourcesMonitor>()
+                .As<IStartable>()
+                .AutoActivate()
+                .SingleInstance();
         }
     }
 }
