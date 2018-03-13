@@ -53,11 +53,14 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             if (!book.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {book.ToJson()} is invalid!");
 
+            var bookId = Guid.NewGuid().ToString();
+
             if (book.Asks != null)
                 foreach (var ask in book.Asks)
                 {
                     var askEntry = new OutOrderbookEntry
                     {
+                        BookId = bookId,
                         Source = book.Source,
                         Asset = book.Asset,
                         Timestamp = DateTimeConverter.Convert(book.Timestamp),
@@ -72,6 +75,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                 {
                     var bidEntry = new OutOrderbookEntry
                     {
+                        BookId = bookId,
                         Source = book.Source,
                         Asset = book.Asset,
                         Timestamp = DateTimeConverter.Convert(book.Timestamp),

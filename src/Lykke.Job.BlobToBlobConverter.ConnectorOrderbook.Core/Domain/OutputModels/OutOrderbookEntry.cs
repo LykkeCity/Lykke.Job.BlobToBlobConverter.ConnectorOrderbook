@@ -2,6 +2,8 @@
 {
     public class OutOrderbookEntry
     {
+        public string BookId { get; set; }
+
         public string Source { get; set; }
 
         public string Asset { get; set; }
