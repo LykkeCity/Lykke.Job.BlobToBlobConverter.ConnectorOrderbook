@@ -65,7 +65,9 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
             builder.RegisterType<ResourcesMonitor>()
                 .As<IStartable>()
                 .AutoActivate()
-                .SingleInstance();
+                .SingleInstance()
+                .WithParameter("cpuThreshold", 0.5)
+                .WithParameter("ramMbThreshold", 500);
         }
     }
 }
