@@ -24,7 +24,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public async Task ProcessAsync(IEnumerable<byte[]> messages, Func<string, ICollection<string>, Task> processTask)
         {
-            var list = new List<string>();
+            var list = new HashSet<string>();
 
             foreach (var message in messages)
             {
@@ -50,7 +50,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return result;
         }
 
-        private void AddConvertedMessage(byte[] message, List<string> list)
+        private void AddConvertedMessage(byte[] message, ICollection<string> list)
         {
             var book = JsonDeserializer.Deserialize<InConnectorOrderbook>(message);
             if (!book.IsValid())

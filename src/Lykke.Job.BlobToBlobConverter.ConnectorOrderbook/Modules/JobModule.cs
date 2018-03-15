@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Common.Log;
+using Lykke.Common;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Services;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services;
@@ -36,6 +37,8 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
+            builder.RegisterResourcesMonitoringWithLogging(_log, 0.5, 500);
+
             builder.RegisterType<BlobReader>()
                 .As<IBlobReader>()
                 .SingleInstance()
@@ -61,13 +64,6 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .AutoActivate()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.BlobScanPeriod));
-
-            builder.RegisterType<ResourcesMonitor>()
-                .As<IStartable>()
-                .AutoActivate()
-                .SingleInstance()
-                .WithParameter("cpuThreshold", 0.5)
-                .WithParameter("ramMbThreshold", 500);
         }
     }
 }
