@@ -10,7 +10,7 @@ using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.OutputModels;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 {
-    public class MessageProcessor : IMessageProcessor
+    public class MessageProcessor : IMessageProcessor<InConnectorOrderbook>
     {
         private const string _mainContainer = "connectorderbook";
         private const int _maxBatchCount = 500000;
@@ -22,7 +22,30 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             _log = log;
         }
 
-        public async Task ProcessAsync(IEnumerable<byte[]> messages, Func<string, ICollection<string>, Task> processTask)
+        public Dictionary<string, string> GetMappingStructure()
+        {
+            var result = new Dictionary<string, string>
+            {
+                { _mainContainer, OutOrderbookEntry.GetColumnsString() },
+            };
+            return result;
+        }
+
+        public bool TryDeserialize(byte[] data, out InConnectorOrderbook result)
+        {
+            try
+            {
+                result = JsonDeserializer.Deserialize<InConnectorOrderbook>(data);
+                return true;
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
+
+        public async Task ProcessAsync(IEnumerable<InConnectorOrderbook> messages, Func<string, IEnumerable<string>, Task> processTask)
         {
             var list = new HashSet<string>();
 
@@ -41,18 +64,8 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                 await processTask(_mainContainer, list);
         }
 
-        public Dictionary<string, string> GetMappingStructure()
+        private void AddConvertedMessage(InConnectorOrderbook book, ICollection<string> list)
         {
-            var result = new Dictionary<string, string>
-            {
-                { _mainContainer, OutOrderbookEntry.GetColumnsString() },
-            };
-            return result;
-        }
-
-        private void AddConvertedMessage(byte[] message, ICollection<string> list)
-        {
-            var book = JsonDeserializer.Deserialize<InConnectorOrderbook>(message);
             if (!book.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {book.ToJson()} is invalid!");
 
