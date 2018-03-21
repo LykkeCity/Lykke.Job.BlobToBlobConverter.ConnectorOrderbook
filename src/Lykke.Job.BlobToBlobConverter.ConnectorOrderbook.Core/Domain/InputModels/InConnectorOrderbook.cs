@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.InputModels
@@ -20,21 +19,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.InputMode
 
         public bool IsValid()
         {
-            bool isValid = !string.IsNullOrWhiteSpace(Source) && Source.Length <= _maxLength
+            return !string.IsNullOrWhiteSpace(Source) && Source.Length <= _maxLength
                 && !string.IsNullOrWhiteSpace(Asset) && Asset.Length <= _maxLength
                 && Timestamp != default(DateTime)
                 && (Asks.Count > 0 || Bids.Count > 0);
-            if (!isValid)
-                return false;
-
-            if (Asks.Count > 0 && Bids.Count > 0)
-            {
-                double maxBid = Bids.Max(i => i.Price);
-                double minAsk = Asks.Min(i => i.Price);
-                return maxBid <= minAsk;
-            }
-
-            return true;
         }
     }
 }
