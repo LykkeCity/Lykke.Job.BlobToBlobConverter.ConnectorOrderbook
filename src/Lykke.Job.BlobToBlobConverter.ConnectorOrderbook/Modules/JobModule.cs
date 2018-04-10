@@ -38,7 +38,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
-            builder.RegisterResourcesMonitoringWithLogging(_log, 0.5, 500);
+            builder.RegisterResourcesMonitoring(_log);
 
             builder.RegisterType<BlobReader<InConnectorOrderbook>>()
                 .As<IBlobReader<InConnectorOrderbook>>()
