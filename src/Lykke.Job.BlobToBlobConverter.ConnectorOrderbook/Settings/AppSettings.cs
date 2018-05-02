@@ -8,6 +8,8 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings
         public BlobToBlobConverterConnectorOrderbookSettings BlobToBlobConverterConnectorOrderbookJob { get; set; }
 
         public SlackNotificationsSettings SlackNotifications { get; set; }
+
+        public MonitoringServiceClientSettings MonitoringServiceClient { get; set; }
     }
 
     public class SlackNotificationsSettings
@@ -20,6 +22,12 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings
         public string ConnectionString { get; set; }
 
         public string QueueName { get; set; }
+    }
+
+    public class MonitoringServiceClientSettings
+    {
+        [HttpCheck("api/isalive")]
+        public string MonitoringServiceUrl { get; set; }
     }
 
     public class BlobToBlobConverterConnectorOrderbookSettings
