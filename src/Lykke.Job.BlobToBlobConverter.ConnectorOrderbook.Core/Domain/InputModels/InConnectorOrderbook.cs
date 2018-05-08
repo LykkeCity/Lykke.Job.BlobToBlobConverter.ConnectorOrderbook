@@ -22,8 +22,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.InputMode
         {
             bool isValid = !string.IsNullOrWhiteSpace(Source) && Source.Length <= _maxLength
                 && !string.IsNullOrWhiteSpace(Asset) && Asset.Length <= _maxLength
-                && Timestamp != default(DateTime)
-                && (Asks.Count > 0 || Bids.Count > 0);
+                && Timestamp != default(DateTime);
             if (!isValid)
                 return false;
 
