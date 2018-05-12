@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,12 +13,15 @@ using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.OutputModels;
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 {
     [UsedImplicitly]
-    public class MessageProcessor : IMessageProcessor<InConnectorOrderbook>
+    public class MessageProcessor : IMessageProcessor
     {
         private const string _mainContainer = "connectorderbook";
         private const int _maxBatchCount = 500000;
 
         private readonly ILog _log;
+
+        private Func<string, List<string>, Task> _messagesHandler;
+        private HashSet<string> _items;
 
         public MessageProcessor(ILog log)
         {
@@ -33,44 +37,45 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return result;
         }
 
-        public bool TryDeserialize(byte[] data, out InConnectorOrderbook result)
+        public void StartBlobProcessing(Func<string, List<string>, Task> messagesHandler)
         {
-            try
-            {
-                result = JsonDeserializer.Deserialize<InConnectorOrderbook>(data);
-                return true;
-            }
-            catch
-            {
-                result = null;
-                return false;
-            }
+            _items = new HashSet<string>();
+            _messagesHandler = messagesHandler;
         }
 
-        public async Task ProcessAsync(IEnumerable<InConnectorOrderbook> messages, Func<string, IEnumerable<string>, Task> processTask)
+        public async Task FinishBlobProcessingAsync()
         {
-            var list = new HashSet<string>();
+            await _messagesHandler(_mainContainer, _items.ToList());
+            _items.Clear();
+        }
 
-            foreach (var message in messages)
+        public async Task<bool> TryProcessMessageAsync(byte[] data)
+        {
+            bool result = JsonDeserializer.TryDeserialize(data, out InConnectorOrderbook externalOrderbook);
+            if (!result)
+                return false;
+
+            if (!externalOrderbook.IsValid())
+                _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {externalOrderbook.ToJson()} is invalid!");
+
+            await ProcessAsync(externalOrderbook);
+
+            return true;
+        }
+
+        public async Task ProcessAsync(InConnectorOrderbook message)
+        {
+            AddConvertedMessage(message, _items);
+
+            if (_items.Count >= _maxBatchCount)
             {
-                AddConvertedMessage(message, list);
-
-                if (list.Count >= _maxBatchCount)
-                {
-                    await processTask(_mainContainer, list);
-                    list.Clear();
-                }
+                await _messagesHandler(_mainContainer, _items.ToList());
+                _items.Clear();
             }
-
-            if (list.Count >= 0)
-                await processTask(_mainContainer, list);
         }
 
         private void AddConvertedMessage(InConnectorOrderbook book, ICollection<string> list)
         {
-            if (!book.IsValid())
-                _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {book.ToJson()} is invalid!");
-
             var bookId = Guid.NewGuid().ToString();
 
             if (book.Asks != null)

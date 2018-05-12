@@ -4,7 +4,6 @@ using Lykke.Common;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Services;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services;
-using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.InputModels;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.PeriodicalHandlers;
@@ -40,8 +39,8 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
 
             builder.RegisterResourcesMonitoring(_log);
 
-            builder.RegisterType<BlobReader<InConnectorOrderbook>>()
-                .As<IBlobReader<InConnectorOrderbook>>()
+            builder.RegisterType<BlobReader>()
+                .As<IBlobReader>()
                 .SingleInstance()
                 .WithParameter("container", _settings.InputContainer)
                 .WithParameter("blobConnectionString", _settings.InputBlobConnString);
@@ -53,10 +52,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .WithParameter("rootContainer", _settings.InputContainer);
 
             builder.RegisterType<MessageProcessor>()
-                .As<IMessageProcessor<InConnectorOrderbook>>()
+                .As<IMessageProcessor>()
                 .SingleInstance();
 
-            builder.RegisterType<BlobProcessor<InConnectorOrderbook>>()
+            builder.RegisterType<BlobProcessor>()
                 .As<IBlobProcessor>()
                 .SingleInstance();
 
