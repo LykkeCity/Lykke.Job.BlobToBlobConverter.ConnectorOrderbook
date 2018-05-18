@@ -63,7 +63,11 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
 
                 Log = CreateLogWithSlack(services, appSettings);
 
-                builder.RegisterModule(new JobModule(appSettings.CurrentValue.BlobToBlobConverterConnectorOrderbookJob, Log));
+                string instanceTag = Configuration["InstanceTag"];
+                if (string.IsNullOrWhiteSpace(instanceTag))
+                    throw new InvalidOperationException($"Environment variable 'InstanceTag' is missing or empty");
+
+                builder.RegisterModule(new JobModule(appSettings.CurrentValue.BlobToBlobConverterConnectorOrderbookJob, Log, instanceTag));
 
                 builder.Populate(services);
 

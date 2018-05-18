@@ -14,11 +14,13 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
     {
         private readonly BlobToBlobConverterConnectorOrderbookSettings _settings;
         private readonly ILog _log;
+        private readonly string _instanceTag;
 
-        public JobModule(BlobToBlobConverterConnectorOrderbookSettings settings, ILog log)
+        public JobModule(BlobToBlobConverterConnectorOrderbookSettings settings, ILog log, string instanceTag)
         {
             _settings = settings;
             _log = log;
+            _instanceTag = instanceTag;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -54,6 +56,11 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
             builder.RegisterType<MessageProcessor>()
                 .As<IMessageProcessor>()
                 .SingleInstance();
+
+            builder.RegisterType<StructureBuilder>()
+                .As<IStructureBuilder>()
+                .SingleInstance()
+                .WithParameter("instanceTag", _instanceTag);
 
             builder.RegisterType<BlobProcessor>()
                 .As<IBlobProcessor>()

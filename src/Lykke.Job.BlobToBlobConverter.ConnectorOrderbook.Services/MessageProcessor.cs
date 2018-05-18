@@ -15,7 +15,6 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
     [UsedImplicitly]
     public class MessageProcessor : IMessageProcessor
     {
-        private const string _mainContainer = "connectorderbook";
         private const int _maxBatchCount = 500000;
 
         private readonly ILog _log;
@@ -28,15 +27,6 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             _log = log;
         }
 
-        public Dictionary<string, string> GetMappingStructure()
-        {
-            var result = new Dictionary<string, string>
-            {
-                { _mainContainer, OutOrderbookEntry.GetColumnsString() },
-            };
-            return result;
-        }
-
         public void StartBlobProcessing(Func<string, List<string>, Task> messagesHandler)
         {
             _items = new HashSet<string>();
@@ -45,7 +35,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public async Task FinishBlobProcessingAsync()
         {
-            await _messagesHandler(_mainContainer, _items.ToList());
+            await _messagesHandler(StructureBuilder.MainContainer, _items.ToList());
             _items.Clear();
         }
 
@@ -69,7 +59,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
             if (_items.Count >= _maxBatchCount)
             {
-                await _messagesHandler(_mainContainer, _items.ToList());
+                await _messagesHandler(StructureBuilder.MainContainer, _items.ToList());
                 _items.Clear();
             }
         }
