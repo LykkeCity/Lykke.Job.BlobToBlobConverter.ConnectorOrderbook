@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Common;
 using Common.Log;
 using Lykke.Common;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
@@ -34,10 +35,14 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .SingleInstance();
 
             builder.RegisterType<StartupManager>()
-                .As<IStartupManager>();
+                .As<IStartupManager>()
+                .AutoActivate()
+                .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
-                .As<IShutdownManager>();
+                .As<IShutdownManager>()
+                .AutoActivate()
+                .SingleInstance();
 
             builder.RegisterResourcesMonitoring(_log);
 
@@ -67,7 +72,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .SingleInstance();
 
             builder.RegisterType<PeriodicalHandler>()
-                .As<IStartable>()
+                .As<IStopable>()
                 .AutoActivate()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.BlobScanPeriod));

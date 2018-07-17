@@ -15,6 +15,7 @@ using Lykke.Logs.Slack;
 using Lykke.MonitoringServiceApiCaller;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -109,6 +110,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
+
+#if DEBUG
+                TelemetryConfiguration.Active.DisableTelemetry = true;
+#endif
             }
             catch (Exception ex)
             {
@@ -126,7 +131,9 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
                 await Log.WriteMonitorAsync("", Program.EnvInfo, "Started");
 
+#if !(DEBUG)
                 await AutoRegistrationInMonitoring.RegisterAsync(Configuration, _monitoringServiceUrl, Log);
+#endif
             }
             catch (Exception ex)
             {
