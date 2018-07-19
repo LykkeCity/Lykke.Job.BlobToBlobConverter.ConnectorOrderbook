@@ -1,0 +1,23 @@
+{
+  "BlobToBlobConverterConnectorOrderbookJob": 
+  {
+    "LogsConnString": "${LogsConnString}:[AzureTableStorage]",
+    "InputBlobConnString": "${RawRabbitMqDataBlobConnString}:[AzureBlobStorage]",
+    "InputContainer": "${RawRabbitMqDataBlobContainerName}",
+    "OutputBlobConnString": "${ConvertedRabbitMqDataBlobConnString}:[AzureBlobStorage]",
+    "BlobScanPeriod": "00:30:00"
+  },
+  "MonitoringServiceClient": 
+  {
+    "MonitoringServiceUrl": "${MonitoringServiceUrl}"
+  },
+  "SlackNotifications": 
+  {
+    "AzureQueue": 
+    {
+      "ConnectionString": "${SlackNotificationsConnString}:[AzureTableStorage]",
+      "QueueName": "slack-notifications"
+    },
+    "ThrottlingLimitSeconds": ${SlackNotificationsThrottlingLimit}
+  }
+}
