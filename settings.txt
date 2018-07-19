@@ -3,7 +3,7 @@
   {
     "LogsConnString": "${LogsConnString}:[AzureTableStorage]",
     "InputBlobConnString": "${RawRabbitMqDataBlobConnString}:[AzureBlobStorage]",
-    "InputContainer": "${RawRabbitMqDataBlobContainerName}",
+    "InputContainer": "${RawRabbitMqDataBlobContainerName}:[Tag]",
     "OutputBlobConnString": "${ConvertedRabbitMqDataBlobConnString}:[AzureBlobStorage]",
     "BlobScanPeriod": "00:30:00"
   },
