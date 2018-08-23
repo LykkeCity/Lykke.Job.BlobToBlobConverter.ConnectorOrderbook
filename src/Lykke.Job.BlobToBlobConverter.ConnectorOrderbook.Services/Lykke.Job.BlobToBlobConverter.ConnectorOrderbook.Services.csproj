@@ -4,9 +4,8 @@
     <Version>1.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.0.2" />
-    <PackageReference Include="Lykke.Job.BlobToBlobConverter.Common" Version="16.0.1" />
-    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.6.4" />
+    <PackageReference Include="Lykke.Job.BlobToBlobConverter.Common" Version="16.3.1" />
+    <PackageReference Include="Microsoft.ApplicationInsights" Version="2.7.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core\Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.csproj" />

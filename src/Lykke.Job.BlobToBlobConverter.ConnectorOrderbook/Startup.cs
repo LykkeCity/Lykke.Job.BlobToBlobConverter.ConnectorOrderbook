@@ -4,6 +4,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
 using Common.Log;
+using Lykke.Common;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Common.Api.Contract.Responses;
@@ -59,7 +60,13 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
                 });
 
                 var builder = new ContainerBuilder();
-                var appSettings = Configuration.LoadSettings<AppSettings>();
+                var appSettings = Configuration.LoadSettings<AppSettings>(o =>
+                    {
+                        o.SetConnString(s => s.SlackNotifications.AzureQueue.ConnectionString);
+                        o.SetQueueName(s => s.SlackNotifications.AzureQueue.QueueName);
+                        o.SenderName = $"{AppEnvironment.Name} {AppEnvironment.Version}";
+                    });
+
                 _monitoringServiceUrl = appSettings.CurrentValue.MonitoringServiceClient.MonitoringServiceUrl;
 
                 Log = CreateLogWithSlack(services, appSettings);
@@ -150,10 +157,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
             }
             catch (Exception ex)
             {
-                if (Log != null)
-                {
-                    Log.WriteFatalError(nameof(Startup), nameof(StopApplication), ex);
-                }
+                Log?.WriteFatalError(nameof(Startup), nameof(StopApplication), ex);
                 throw;
             }
         }
@@ -163,11 +167,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
             try
             {
                 // NOTE: Job can't recieve and process IsAlive requests here, so you can destroy all resources
-                
-                if (Log != null)
-                {
-                    Log.WriteMonitor("", Program.EnvInfo, "Terminating");
-                }
+                Log?.WriteMonitor("", Program.EnvInfo, "Terminating");
 
                 ApplicationContainer.Dispose();
             }
