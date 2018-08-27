@@ -64,6 +64,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
 
             builder.RegisterType<StructureBuilder>()
                 .As<IStructureBuilder>()
+                .As<IDynamicStructure>()
                 .SingleInstance()
                 .WithParameter("instanceTag", _instanceTag);
 

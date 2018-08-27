@@ -1,14 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Common;
+﻿using Common;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Helpers;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.InputModels;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Domain.OutputModels;
+using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 {
@@ -18,25 +18,30 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
         private const int _maxBatchCount = 500000;
 
         private readonly ILog _log;
+        private readonly IDynamicStructure _dynamicStructure;
 
         private Func<string, List<string>, Task> _messagesHandler;
-        private HashSet<string> _items;
+        private Dictionary<string, List<string>> _assetPairsDict;
 
-        public MessageProcessor(ILog log)
+        public MessageProcessor(ILog log, IDynamicStructure dynamicStructure)
         {
             _log = log;
+            _dynamicStructure = dynamicStructure;
         }
 
         public void StartBlobProcessing(Func<string, List<string>, Task> messagesHandler)
         {
-            _items = new HashSet<string>();
+            _assetPairsDict = new Dictionary<string, List<string>>();
             _messagesHandler = messagesHandler;
         }
 
         public async Task FinishBlobProcessingAsync()
         {
-            await _messagesHandler(StructureBuilder.MainContainer, _items.ToList());
-            _items.Clear();
+            foreach (var pair in _assetPairsDict)
+            {
+                await _messagesHandler(pair.Key, pair.Value);
+            }
+            _assetPairsDict.Clear();
         }
 
         public async Task<bool> TryProcessMessageAsync(byte[] data)
@@ -53,19 +58,15 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return true;
         }
 
-        public async Task ProcessAsync(InConnectorOrderbook message)
+        public async Task ProcessAsync(InConnectorOrderbook book)
         {
-            AddConvertedMessage(message, _items);
-
-            if (_items.Count >= _maxBatchCount)
+            var directory = _dynamicStructure.GetDirectoryName(book.Asset);
+            if (!_assetPairsDict.ContainsKey(directory))
             {
-                await _messagesHandler(StructureBuilder.MainContainer, _items.ToList());
-                _items.Clear();
+                _assetPairsDict.Add(directory, new List<string>());
+                await _dynamicStructure.UpdateStructureIfRequiredAsync(book.Asset);
             }
-        }
-
-        private void AddConvertedMessage(InConnectorOrderbook book, ICollection<string> list)
-        {
+            var list = _assetPairsDict[directory];
             var bookId = Guid.NewGuid().ToString();
 
             if (book.Asks != null)
@@ -98,6 +99,12 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                     };
                     list.Add(bidEntry.GetValuesString());
                 }
+
+            if (list.Count >= _maxBatchCount)
+            {
+                await _messagesHandler(directory, list);
+                list.Clear();
+            }
         }
     }
 }
