@@ -45,7 +45,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public string GetDirectoryName(string assetPair)
         {
-            return string.IsNullOrWhiteSpace(assetPair) ? _containerPrefix : $"{_containerPrefix}-{assetPair}";
+            return string.IsNullOrWhiteSpace(assetPair) ? _containerPrefix : $"{_containerPrefix}-{assetPair.ToLower()}";
         }
 
         public async Task UpdateStructureIfRequiredAsync(string assetPair)
