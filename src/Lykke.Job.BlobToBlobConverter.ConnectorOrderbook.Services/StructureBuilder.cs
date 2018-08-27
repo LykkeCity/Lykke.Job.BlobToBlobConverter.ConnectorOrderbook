@@ -15,6 +15,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
         private readonly string _instanceTag;
         private readonly IBlobSaver _blobSaver;
         private readonly HashSet<string> _assetPairs = new HashSet<string>();
+        private readonly List<ColumnInfo> _columnData;
 
         public bool IsDynamicStructure => true;
 
@@ -22,6 +23,13 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
         {
             _instanceTag = instanceTag;
             _blobSaver = blobSaver;
+            _columnData = OutOrderbookEntry.GetStructure()
+                .Select(p => new ColumnInfo
+                {
+                    ColumnName = p.Item1,
+                    ColumnType = p.Item2
+                })
+                .ToList();
         }
 
         public bool IsAllBlobsReprocessingRequired(TablesStructure currentStructure)
@@ -68,16 +76,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             return new TableStructure
             {
                 TableName = string.IsNullOrWhiteSpace(_instanceTag)
-                    ? "ConnectOrderbook"
-                    : $"ConnectOrderbook_{_instanceTag}",
+                    ? $"ConnectOrderbook_{assetPair}"
+                    : $"ConnectOrderbook_{_instanceTag}_{assetPair.ToLower()}",
                 AzureBlobFolder = GetDirectoryName(assetPair),
-                Colums = OutOrderbookEntry.GetStructure()
-                    .Select(p => new ColumnInfo
-                    {
-                        ColumnName = p.Item1,
-                        ColumnType = p.Item2
-                    })
-                    .ToList(),
+                Colums = _columnData,
             };
         }
     }
