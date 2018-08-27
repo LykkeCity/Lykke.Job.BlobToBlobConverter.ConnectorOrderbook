@@ -34,10 +34,19 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public bool IsAllBlobsReprocessingRequired(TablesStructure currentStructure)
         {
-            if (currentStructure?.Tables == null)
+            if (currentStructure?.Tables == null || currentStructure.Tables.Count <= 1)
                 return true;
 
-            return currentStructure.Tables.Count <= 1;
+            foreach (var tableStructure in currentStructure.Tables)
+            {
+                string assetPair = ExtractAssetPairFromDirectory(tableStructure.AzureBlobFolder);
+                if (assetPair == null)
+                    continue;
+
+                _assetPairs.Add(assetPair);
+            }
+
+            return false;
         }
 
         public TablesStructure GetTablesStructure()
@@ -58,6 +67,8 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public async Task UpdateStructureIfRequiredAsync(string assetPair)
         {
+            assetPair = assetPair.ToLower();
+
             if (string.IsNullOrWhiteSpace(assetPair) || _assetPairs.Contains(assetPair))
                 return;
 
@@ -77,10 +88,19 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             {
                 TableName = string.IsNullOrWhiteSpace(_instanceTag)
                     ? $"ConnectOrderbook_{assetPair}"
-                    : $"ConnectOrderbook_{_instanceTag}_{assetPair.ToLower()}",
+                    : $"ConnectOrderbook_{_instanceTag}_{assetPair}",
                 AzureBlobFolder = GetDirectoryName(assetPair),
                 Colums = _columnData,
             };
+        }
+
+        private string ExtractAssetPairFromDirectory(string directory)
+        {
+            int lastInd = directory.LastIndexOf('-');
+            if (lastInd == -1)
+                return null;
+
+            return directory.Substring(lastInd + 1);
         }
     }
 }
