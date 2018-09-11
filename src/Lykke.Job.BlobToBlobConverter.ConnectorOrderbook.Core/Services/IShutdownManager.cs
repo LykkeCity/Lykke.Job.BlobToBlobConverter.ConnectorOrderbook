@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Common;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services
 {

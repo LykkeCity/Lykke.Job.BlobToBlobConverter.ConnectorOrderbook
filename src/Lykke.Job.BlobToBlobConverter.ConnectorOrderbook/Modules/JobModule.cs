@@ -1,13 +1,12 @@
 ﻿using Autofac;
-using Common;
 using Common.Log;
 using Lykke.Common;
 using Lykke.Job.BlobToBlobConverter.Common.Abstractions;
 using Lykke.Job.BlobToBlobConverter.Common.Services;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services;
-using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings;
-using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.PeriodicalHandlers;
+using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services;
+using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
 {
@@ -36,7 +35,6 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
 
             builder.RegisterType<StartupManager>()
                 .As<IStartupManager>()
-                .AutoActivate()
                 .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
@@ -73,8 +71,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .SingleInstance();
 
             builder.RegisterType<PeriodicalHandler>()
-                .As<IStopable>()
-                .AutoActivate()
+                .As<IStartStop>()
                 .SingleInstance()
                 .WithParameter(TypedParameter.From(_settings.BlobScanPeriod));
         }

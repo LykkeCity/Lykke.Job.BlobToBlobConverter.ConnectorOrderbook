@@ -1,9 +1,8 @@
-﻿using Common;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Common;
 using JetBrains.Annotations;
 using Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Core.Services;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 {
@@ -12,16 +11,16 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
     {
         private readonly List<IStopable> _items = new List<IStopable>();
 
-        public ShutdownManager(IEnumerable<IStopable> stopables)
+        public ShutdownManager(IEnumerable<IStartStop> stopables)
         {
-            _items = stopables.ToList();
+            _items.AddRange(stopables);
         }
 
-        public async Task StopAsync()
+        public Task StopAsync()
         {
             Parallel.ForEach(_items, i => i.Stop());
 
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }
