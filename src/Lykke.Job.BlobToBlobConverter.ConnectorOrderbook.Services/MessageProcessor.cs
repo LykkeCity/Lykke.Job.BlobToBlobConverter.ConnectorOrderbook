@@ -46,7 +46,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
         public async Task<bool> TryProcessMessageAsync(byte[] data)
         {
-            bool result = JsonDeserializer.TryDeserialize(data, out InConnectorOrderbook externalOrderbook);
+            bool result = JsonDeserializer.TryDeserialize(
+                data,
+                _log,
+                out InConnectorOrderbook externalOrderbook);
             if (!result)
                 return false;
 
