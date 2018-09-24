@@ -60,6 +60,10 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .As<IMessageProcessor>()
                 .SingleInstance();
 
+            builder.RegisterType<TypeResolver>()
+                .As<IMessageTypeResolver>()
+                .SingleInstance();
+
             builder.RegisterType<StructureBuilder>()
                 .As<IStructureBuilder>()
                 .As<IDynamicStructure>()

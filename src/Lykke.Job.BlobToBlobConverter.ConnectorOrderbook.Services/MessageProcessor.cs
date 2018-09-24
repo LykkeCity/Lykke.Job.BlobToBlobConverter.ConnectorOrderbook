@@ -44,21 +44,13 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
             _assetPairsDict.Clear();
         }
 
-        public async Task<bool> TryProcessMessageAsync(byte[] data)
+        public async Task ProcessMessageAsync(object obj)
         {
-            bool result = JsonDeserializer.TryDeserialize(
-                data,
-                _log,
-                out InConnectorOrderbook externalOrderbook);
-            if (!result)
-                return false;
-
+            var externalOrderbook = obj as InConnectorOrderbook;
             if (!externalOrderbook.IsValid())
                 _log.WriteWarning(nameof(MessageProcessor), nameof(Convert), $"ConnectorOrderbook {externalOrderbook.ToJson()} is invalid!");
 
             await ProcessAsync(externalOrderbook);
-
-            return true;
         }
 
         public async Task ProcessAsync(InConnectorOrderbook book)
