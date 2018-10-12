@@ -90,7 +90,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
                     ? $"ConnectOrderbook_{assetPair}"
                     : $"ConnectOrderbook_{_instanceTag}_{assetPair}",
                 AzureBlobFolder = GetDirectoryName(assetPair),
-                Colums = _columnData,
+                Columns = _columnData,
             };
         }
 

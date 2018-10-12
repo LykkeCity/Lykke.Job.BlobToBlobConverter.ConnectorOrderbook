@@ -40,6 +40,9 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Settings
 
         public string InputContainer { get; set; }
 
+        [Optional]
+        public bool SkipCorrupted { get; set; }
+
         [AzureBlobCheck]
         public string OutputBlobConnString { get; set; }
 
