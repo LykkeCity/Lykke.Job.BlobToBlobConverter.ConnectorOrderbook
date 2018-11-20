@@ -129,7 +129,7 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook
             try
             {
                 // NOTE: Job not yet recieve and process IsAlive requests here
-
+                Log.WriteMonitor("", Program.EnvInfo, "Initializing");
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
                 Log.WriteMonitor("", Program.EnvInfo, "Started");
 
