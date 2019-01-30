@@ -42,8 +42,6 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Modules
                 .AutoActivate()
                 .SingleInstance();
 
-            builder.RegisterResourcesMonitoring(_log);
-
             builder.RegisterType<BlobReader>()
                 .As<IBlobReader>()
                 .SingleInstance()

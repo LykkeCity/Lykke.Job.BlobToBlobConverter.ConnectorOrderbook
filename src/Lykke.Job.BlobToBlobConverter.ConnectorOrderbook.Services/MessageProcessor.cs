@@ -98,13 +98,16 @@ namespace Lykke.Job.BlobToBlobConverter.ConnectorOrderbook.Services
 
             var minutesDict = _assetPairsDict[directory];
             int minuteKey = GetMinuteKey(book.Timestamp);
-            minutesDict[minuteKey] = items;
 
-            if (minutesDict.Count >= _maxBatchCount)
+            int pairItemsCount = minutesDict.Sum(i => i.Value.Count);
+            if (pairItemsCount >= _maxBatchCount)
             {
-                await _messagesHandler(directory, minutesDict.SelectMany(i => i.Value).ToList());
+                var allItemsFromOtherMinutes = minutesDict.Keys.Where(k => k != minuteKey).SelectMany(i => minutesDict[i]).ToList();
+                await _messagesHandler(directory, allItemsFromOtherMinutes);
                 minutesDict.Clear();
             }
+
+            minutesDict[minuteKey] = items;
         }
 
         private int GetMinuteKey(DateTime time)
